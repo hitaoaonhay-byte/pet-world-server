@@ -26,6 +26,57 @@ app.use(express.json());
 app.get("/", (req, res) => {
     res.send("Pet World API đang hoạt động!");
 });
+app.post("/save", async (req, res) => {
+
+    const {
+        name,
+        coin,
+        gem,
+        level,
+        xp,
+        food,
+        pettype
+    } = req.body;
+
+    try {
+
+        await pool.query(`
+        INSERT INTO players
+        (name, coin, gem, level, xp, food, pettype)
+        VALUES ($1,$2,$3,$4,$5,$6,$7)
+        ON CONFLICT (name)
+        DO UPDATE SET
+        coin=$2,
+        gem=$3,
+        level=$4,
+        xp=$5,
+        food=$6,
+        pettype=$7
+        `, [
+            name,
+            coin,
+            gem,
+            level,
+            xp,
+            food,
+            pettype
+        ]);
+
+        res.json({
+            success: true
+        });
+
+    } catch (err) {
+
+        console.log(err);
+
+        res.json({
+            success: false
+        });
+
+    }
+
+});
 pool.query("SELECT NOW()")
 .then(() => {
     console.log("Đã kết nối PostgreSQL");
