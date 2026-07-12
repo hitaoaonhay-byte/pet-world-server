@@ -84,6 +84,37 @@ pool.query("SELECT NOW()")
 .catch(err => {
     console.error("Lỗi PostgreSQL:", err);
 });
+app.get("/load/:name", async (req, res) => {
+
+    try {
+
+        const result = await pool.query(
+            "SELECT * FROM players WHERE name=$1",
+            [req.params.name]
+        );
+
+        if (result.rows.length === 0) {
+            return res.json({
+                success: false
+            });
+        }
+
+        res.json({
+            success: true,
+            player: result.rows[0]
+        });
+
+    } catch (err) {
+
+        console.log(err);
+
+        res.json({
+            success: false
+        });
+
+    }
+
+});
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
