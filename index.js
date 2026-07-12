@@ -8,6 +8,18 @@ const pool = new Pool({
     rejectUnauthorized: false
   }
 });
+pool.query(`
+CREATE TABLE IF NOT EXISTS players (
+    id SERIAL PRIMARY KEY,
+    name TEXT UNIQUE,
+    coin INTEGER DEFAULT 0,
+    gem INTEGER DEFAULT 0,
+    level INTEGER DEFAULT 1,
+    xp INTEGER DEFAULT 0,
+    food INTEGER DEFAULT 100,
+    pettype TEXT DEFAULT 'none'
+);
+`);
 app.use(cors());
 app.use(express.json());
 
