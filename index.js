@@ -115,6 +115,46 @@ app.get("/load/:name", async (req, res) => {
     }
 
 });
+app.post("/redeem", async (req, res) => {
+
+    const { name, code } = req.body;
+
+    try {
+
+        const gift = await pool.query(
+            "SELECT * FROM gift_codes WHERE code=$1",
+            [code]
+        );
+
+        if (gift.rows.length === 0) {
+            return res.json({ success: false, message: "Code không tồn tại" });
+        }
+
+        if (gift.rows[0].used >= gift.rows[0].max_use) {
+            return res.json({ success: false, message: "Code đã hết lượt" });
+        }
+
+        await pool.query(
+            "UPDATE players SET coin = coin + $1 WHERE name=$2",
+            [gift.rows[0].reward, name]
+        );
+
+        await pool.query(
+            "UPDATE gift_codes SET used = used + 1 WHERE code=$1",
+            [code]
+        );
+
+        res.json({ success: true });
+
+    } catch (err) {
+
+        console.log(err);
+
+        res.json({ success: false });
+
+    }
+
+});
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
